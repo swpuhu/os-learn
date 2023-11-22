@@ -35,7 +35,7 @@ SECTION MBR vstart=0x7c00
     mov ax, message
     mov bp, ax
 
-    mov ax, 5
+    mov cx, 5
     mov ax, 0x1301
 
     mov bx, 0x2
