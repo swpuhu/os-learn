@@ -1,11 +1,12 @@
 SECTION MBR vstart=0x7c00
-    xchg bx, bx
     mov ax, cs
     mov ds, ax
     mov es, ax
     mov ss, ax
     mov fs, ax
     mov sp, 0x7c00
+    mov ax, 0xb800
+    mov gs, ax
 
 ; 0x06 号功能，上卷全部行清屏
 ; INT 0x10 功能号： 0x06    功能描述：上卷窗口
@@ -24,28 +25,24 @@ SECTION MBR vstart=0x7c00
     mov dx, 0x184f ;0x4f为低8位 == 80 ， 0x18为高8位 == 24
     ; VGA 文本模式中，一行只能容纳80个字符，一共25行。下标从0开始，
     int 0x10 ; 调用0x10中断
-.get_cursor:
-    mov ah, 3   ; 输入： 3号子功能是获取光标位置，存入AH寄存器
-    mov bh, 0   ; bh 寄存器存储的是待获取光标的页号
+    ;; 利用文本显示模式打印字符，往0xb8000中写入字符串
+    mov byte [gs:0x00], '1'
+    mov byte [gs:0x01], 0xa6
 
-    int 0x10    ; 输出： ch=光标开始行，cl=光标结束行
+    mov byte [gs:0x02], ' '
+    mov byte [gs:0x03], 0xa4
 
-    ;获取光标位置结束
-    
-    xchg bx, bx
-    mov ax, message
-    mov bp, ax
+    mov byte [gs:0x04], 'M'
+    mov byte [gs:0x05], 0xa6
 
-    mov cx, 5
-    mov ax, 0x1301
+    mov byte [gs:0x06], 'B'
+    mov byte [gs:0x07], 0xa4
 
-    mov bx, 0x2
+    mov byte [gs:0x08], 'R'
+    mov byte [gs:0x09], 0xa4
 
-    int 0x10
     ;; 打印结束
 
     jmp $ ; 让程序死循环在这里卡住
-
-    message db "1 MBR"
     times 510 - ($ - $$) db 0
     db 0x55, 0xaa
