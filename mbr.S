@@ -1,4 +1,5 @@
 SECTION MBR vstart=0x7c00
+    xchg bx, bx
     mov ax, cs
     mov ds, ax
     mov es, ax
@@ -23,7 +24,6 @@ SECTION MBR vstart=0x7c00
     mov dx, 0x184f ;0x4f为低8位 == 80 ， 0x18为高8位 == 24
     ; VGA 文本模式中，一行只能容纳80个字符，一共25行。下标从0开始，
     int 0x10 ; 调用0x10中断
-
 .get_cursor:
     mov ah, 3   ; 输入： 3号子功能是获取光标位置，存入AH寄存器
     mov bh, 0   ; bh 寄存器存储的是待获取光标的页号
@@ -31,7 +31,8 @@ SECTION MBR vstart=0x7c00
     int 0x10    ; 输出： ch=光标开始行，cl=光标结束行
 
     ;获取光标位置结束
-
+    
+    xchg bx, bx
     mov ax, message
     mov bp, ax
 
@@ -48,7 +49,3 @@ SECTION MBR vstart=0x7c00
     message db "1 MBR"
     times 510 - ($ - $$) db 0
     db 0x55, 0xaa
-
-
-
-
