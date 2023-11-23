@@ -45,7 +45,7 @@ SECTION MBR vstart=0x7c00
     ;; 将起始扇区 0x2 的内容加载到 0x900的位置
     mov eax, LOADER_START_SECTOR
     mov bx, LOADER_BASE_ADDR
-    mov cx, 1 ;; 待读入扇区数，读取1个扇区的内容
+    mov cx, 4 ;; 待读入扇区数，读取1个扇区的内容
     call rd_disk_m_16 ;; 调用函数，加载硬盘的内容到内存
     jmp LOADER_BASE_ADDR ;;跳转到从硬盘加载到内存的程序上
     
