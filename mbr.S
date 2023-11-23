@@ -51,7 +51,7 @@ SECTION MBR vstart=0x7c00
     
     rd_disk_m_16:
         mov esi, eax    ;; 暂存eax
-        mov di, cx      ;; 暂存cx
+        mov di, cx      ;; 暂存cx  读取1个扇区的内容
         ;; 第一步  设置要读取的扇区数 sector count
         ;;用dx寄存器往端口中写入数据，表示操作0x1f2端口
         ;;0x1f2表示操作 Sector count
@@ -96,7 +96,6 @@ SECTION MBR vstart=0x7c00
         cmp al, 0x08
         jnz .not_ready
 
-        ; xchg bx, bx
         mov ax, di
         mov dx, 256
         mul dx
