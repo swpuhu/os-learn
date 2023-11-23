@@ -1,3 +1,4 @@
+%include "boot.S"
 SECTION MBR vstart=0x7c00
     mov ax, cs
     mov ds, ax
@@ -40,9 +41,75 @@ SECTION MBR vstart=0x7c00
 
     mov byte [gs:0x08], 'R'
     mov byte [gs:0x09], 0xa4
-
     ;; 打印结束
+    ;; 将起始扇区 0x2 的内容加载到 0x900的位置
+    mov eax, LOADER_START_SECTOR
+    mov bx, LOADER_BASE_ADDR
+    mov cx, 1 ;; 待读入扇区数，读取1个扇区的内容
+    call rd_disk_m_16 ;; 调用函数，加载硬盘的内容到内存
+    jmp LOADER_BASE_ADDR ;;跳转到从硬盘加载到内存的程序上
+    
+    rd_disk_m_16:
+        mov esi, eax    ;; 暂存eax
+        mov di, cx      ;; 暂存cx
+        ;; 第一步  设置要读取的扇区数 sector count
+        ;;用dx寄存器往端口中写入数据，表示操作0x1f2端口
+        ;;0x1f2表示操作 Sector count
 
-    jmp $ ; 让程序死循环在这里卡住
+        mov dx, 0x1f2 
+        mov al, cl
+        out dx, al ;; out 表示写端口操作
+
+        mov eax, esi    ;; 恢复eax
+
+        ;; 第二步   将LBA地址写入 0x1f3 ~ 0x1f6端口
+        ;; 写入 LBA 的 0~7位
+        mov dx, 0x1f3
+        out dx, al
+
+        ;; 写入 LBA 的 8~15位
+        mov dx, 0x1f4
+        mov cl, 8
+        shr eax, cl
+        out dx, al
+
+        ;; 写入 LBA 的 16~23位
+        mov dx, 0x1f5
+        shr eax, cl
+        out dx, al
+
+        mov dx, 0x1f6
+        shr eax, cl
+        and al, 0x0f
+        or al, 0xe0
+        out dx, al
+
+        mov dx, 0x1f7
+        mov al, 0x20
+        out dx, al
+
+    ; xchg bx, bx
+    .not_ready:
+        nop
+        in al, dx
+        and al, 0x88
+        cmp al, 0x08
+        jnz .not_ready
+
+        ; xchg bx, bx
+        mov ax, di
+        mov dx, 256
+        mul dx
+        mov cx, ax
+
+        
+    .go_on_read:
+        ;; 从 0x1f0端口读取数据
+        mov dx, 0x1f0
+        in ax, dx
+        mov [bx], ax
+        add bx, 2
+        loop .go_on_read
+        ret
     times 510 - ($ - $$) db 0
     db 0x55, 0xaa
