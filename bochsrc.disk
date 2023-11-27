@@ -1,4 +1,4 @@
-megs: 32
+megs: 64
 
 romimage: file="/opt/homebrew/Cellar/bochs/2.7/share/bochs/BIOS-bochs-latest", address=0x00000000, options=none
 vgaromimage: file="/opt/homebrew/Cellar/bochs/2.7/share/bochs/VGABIOS-lgpl-latest"
