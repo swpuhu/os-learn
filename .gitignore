@@ -1,2 +1,3 @@
 bochs.out
 *.img
+.DS_Store
